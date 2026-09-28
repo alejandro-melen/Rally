@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador de Gymkana</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+        }
+        .animate-rank-up {
+            animation: rankUp 0.5s ease-in-out;
+        }
+        @keyframes rankUp {
+            0% { transform: translateY(10px); opacity: 0.7; }
+            50% { transform: scale(1.02); }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .pulse-timer {
+            animation: timerPulse 1s infinite alternate;
+        }
+        @keyframes timerPulse {
+            0% { color: #ef4444; transform: scale(1); }
+            100% { color: #dc2626; transform: scale(1.05); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+       
+    </style>
+</head>
+<body class="bg-[#eaeaea] text-slate-100 min-h-screen flex flex-col pb-20 md:pb-6 selection:bg-neutral-500 selection:text-slate-900">
+
+    <!-- Header / Navbar -->
+    <header class="bg-[#203e5f]/90 backdrop-blur-md sticky top-0 z-40 border-b border-slate-700/80 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-[#1a2634] to-[#203e5f] p-1.5 rounded-xl text-slate-900 shadow-lg shadow-amber-500/20">
+                   
+                    <img class="h-12 w-22 object-cover" src="LogoAgustine.jpeg">
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-[#eaeaea] leading-none">RALLY AGUSTINE</h1>
+                    <p class="text-xs text-[#ffcc00] font-medium mt-0.5">Control de Competición</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="resetDataConfirmation()" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-semibold transition flex items-center gap-1.5" title="Reiniciar Datos">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">Reiniciar</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Mobile & Desktop) -->
+        <div class="max-w-4xl mx-auto px-2 flex border-t border-slate-700/50 bg-[#1a2634]/50">
+            <button onclick="switchTab('tab-leaderboard')" id="btn-tab-leaderboard" class="tab-btn flex-1 py-3 px-2 text-center text-xs sm:text-sm font-bold border-b-2 border-amber-500 text-[#ffcc00] transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-list-ol"></i>
+                <span>Marcador</span>
+            </button>
+            <button onclick="switchTab('tab-timer')" id="btn-tab-timer" class="tab-btn flex-1 py-3 px-2 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-stopwatch"></i>
+                <span>Temporizador</span>
+            </button>
+            <button onclick="switchTab('tab-rounds')" id="btn-tab-rounds" class="tab-btn flex-1 py-3 px-2 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-history"></i>
+                <span>Rondas</span>
+            </button>
+            <button onclick="switchTab('tab-settings')" id="btn-tab-settings" class="tab-btn flex-1 py-3 px-2 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>Equipos</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow">
+
+        <!-- TAB 1: MARCADOR / CLASIFICACIÓN -->
+        <section id="tab-leaderboard" class="space-y-4">
+            <div class="flex items-center justify-between bg-[#1a2634]/90 p-3 rounded-xl border border-[#1a2634]/50 mb-2">
+                <div class="text-xs text-[#eaeaea]/80 font-medium">
+                    <span id="teams-count-badge" class="bg-slate-700 text-[#ffcc00] px-2 py-0.5 rounded-full font-bold">6</span> Equipos en competición
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openCustomPointsModal()" class="text-xs bg-[#ffcc00]/20 hover:bg-[#ffcc00]/30 text-[#ffcc00] border border-[#ffcc00]/40 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus-minus"></i> Puntos Extra
+                    </button>
+                </div>
+            </div>
+
+            <!-- List of Teams (Dynamically Populated) -->
+            <div id="leaderboard-list" class="space-y-3">
+                <!-- Team cards will be rendered here -->
+            </div>
+        </section>
+
+        <!-- TAB 2: TEMPORIZADOR / CRONÓMETRO -->
+        <section id="tab-timer" class="hidden space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 text-center shadow-xl max-w-lg mx-auto">
+                <div class="inline-block px-3 py-1 bg-amber-500/10 text-amber-400 rounded-full text-xs font-bold tracking-wider uppercase mb-4 border border-amber-500/20">
+                    Control de Tiempo
+                </div>
+                
+                <!-- Display Digital -->
+                <div id="timer-display" class="text-6xl sm:text-8xl font-black tracking-tight text-white font-mono py-4 select-none">
+                    05:00
+                </div>
+
+                <!-- Custom time presets -->
+                <div class="flex justify-center gap-2 mb-6 flex-wrap">
+                    <button onclick="setPresetTimer(1)" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-semibold transition">1 min</button>
+                    <button onclick="setPresetTimer(3)" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-semibold transition">3 min</button>
+                    <button onclick="setPresetTimer(5)" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-semibold transition">5 min</button>
+                    <button onclick="setPresetTimer(10)" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-semibold transition">10 min</button>
+                    <button onclick="toggleCustomTimeInputs()" class="px-3 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded-lg text-xs font-semibold transition">
+                        <i class="fa-solid fa-pen"></i> Ajustar
+                    </button>
+                </div>
+
+                <!-- Custom time inputs (hidden by default) -->
+                <div id="custom-time-inputs" class="hidden mb-6 p-4 bg-slate-900/60 rounded-xl border border-slate-700/60 flex items-center justify-center gap-3">
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="input-minutes" min="0" max="99" value="5" class="w-16 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-center font-bold text-lg text-white">
+                        <span class="text-xs text-slate-400">min</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <input type="number" id="input-seconds" min="0" max="59" value="0" class="w-16 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-center font-bold text-lg text-white">
+                        <span class="text-xs text-slate-400">seg</span>
+                    </div>
+                    <button onclick="applyCustomTime()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                        Guardar
+                    </button>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="grid grid-cols-3 gap-3">
+                    <button id="btn-start-timer" onclick="startTimer()" class="py-4 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-900 font-black rounded-xl text-lg shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Iniciar</span>
+                    </button>
+                    <button id="btn-pause-timer" onclick="pauseTimer()" disabled class="py-4 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-900 font-black rounded-xl text-lg opacity-50 cursor-not-allowed transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pause"></i>
+                        <span>Pausar</span>
+                    </button>
+                    <button onclick="resetTimer()" class="py-4 bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold rounded-xl text-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reiniciar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: HISTORIAL DE RONDAS -->
+        <section id="tab-rounds" class="hidden space-y-4">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                <h2 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-amber-400"></i> Registrar Nueva Prueba / Ronda
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nombre de la Prueba / Ronda</label>
+                        <input type="text" id="round-name-input" placeholder="Ej: Carrera de Sacos, Prueba 1, Cuerda..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-400">Asignar Puntos de esta Ronda</label>
+                        <div id="round-teams-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <!-- Team round point inputs dynamically generated -->
+                        </div>
+                    </div>
+
+                    <button onclick="saveRound()" class="w-full py-3 bg-amber-500 hover:bg-[#ffcc00] active:scale-[0.99] text-slate-900 font-bold rounded-xl text-sm transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Guardar Ronda e Incrementar Marcador</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- History log -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-[#203e5f] uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-[slate-400]"></i> Historial Registrado
+                </h3>
+                <div id="rounds-history-list" class="space-y-3">
+                    <!-- History items rendered here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: CONFIGURACIÓN / GESTIONAR EQUIPOS -->
+        <section id="tab-settings" class="hidden space-y-4">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                <h2 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-amber-400"></i> Añadir Nuevo Equipo
+                </h2>
+                <form onsubmit="addNewTeam(event)" class="flex gap-2">
+                    <input type="text" id="new-team-name" placeholder="Nombre del equipo..." required class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm transition">
+                        Añadir
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+                <h2 class="text-base font-bold text-white mb-3 flex items-center justify-between">
+                    <span>Lista de Equipos</span>
+                    <span class="text-xs font-normal text-slate-400">Editar o eliminar</span>
+                </h2>
+                <div id="manage-teams-list" class="space-y-2">
+                    <!-- Dynamic management list -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: Custom Points -->
+    <div id="modal-custom-points" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-white">Ajustar Puntos Especiales</h3>
+                <button onclick="closeCustomPointsModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Seleccionar Equipo</label>
+                <select id="modal-select-team" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                    <!-- Dynamic team options -->
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Cantidad de Puntos (+ / -)</label>
+                <input type="number" id="modal-points-amount" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                <span class="text-[11px] text-slate-400 mt-1 block">Usa valores negativos (ej: -3) para restar puntos por penalización.</span>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeCustomPointsModal()" class="flex-1 py-2 bg-slate-700 text-slate-200 font-semibold rounded-xl text-sm hover:bg-slate-600 transition">Cancelar</button>
+                <button onclick="applyCustomPoints()" class="flex-1 py-2 bg-amber-500 text-slate-900 font-bold rounded-xl text-sm hover:bg-amber-600 transition">Aplicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Effects using Web Audio API (No external assets required) -->
+    <script>
+        // App State
+        let teams = [
+            { id: 1, name: "Equipo Rojo", points: 0 },
+            { id: 2, name: "Equipo Azul", points: 0 },
+            { id: 3, name: "Equipo Verde", points: 0 },
+            { id: 4, name: "Equipo Amarillo", points: 0 },
+            { id: 5, name: "Equipo Morado", points: 0 },
+            { id: 6, name: "Equipo Naranja", points: 0 }
+        ];
+
+        let roundsHistory = [];
+
+        // Timer Variables
+        let timerSeconds = 300; // 5 min default
+        let initialTimerSeconds = 300;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Audio Context initialization for sound effects
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'beep') {
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'finish') {
+                    // Alarm sound
+                    const now = audioCtx.currentTime;
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.setValueAtTime(900, now + 0.2);
+                    osc.frequency.setValueAtTime(600, now + 0.4);
+                    osc.frequency.setValueAtTime(900, now + 0.6);
+                    
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                    
+                    osc.start(now);
+                    osc.stop(now + 0.8);
+                } else if (type === 'point') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        // Load & Save State
+        function saveData() {
+            localStorage.setItem('gymkana_teams', JSON.stringify(teams));
+            localStorage.setItem('gymkana_rounds', JSON.stringify(roundsHistory));
+        }
+
+        function loadData() {
+            const savedTeams = localStorage.getItem('gymkana_teams');
+            const savedRounds = localStorage.getItem('gymkana_rounds');
+
+            if (savedTeams) {
+                teams = JSON.parse(savedTeams);
+            }
+            if (savedRounds) {
+                roundsHistory = JSON.parse(savedRounds);
+            }
+        }
+
+        function switchTab(tabId) {
+            const tabs = ['tab-leaderboard', 'tab-timer', 'tab-rounds', 'tab-settings'];
+            tabs.forEach(id => {
+                const element = document.getElementById(id);
+                const btn = document.getElementById(`btn-${id}`);
+                if (id === tabId) {
+                    element.classList.remove('hidden');
+                    btn.classList.add('border-[#ffcc00]', 'text-[#ffcc00]');
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                } else {
+                    element.classList.add('hidden');
+                    btn.classList.remove('border-[#ffcc00]', 'text-[#ffcc00]');
+                    btn.classList.add('border-transparent', 'text-slate-400');
+                }
+            });
+
+            if (tabId === 'tab-rounds') {
+                renderRoundInputs();
+            }
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard-list');
+            document.getElementById('teams-count-badge').innerText = teams.length;
+
+            // Sort teams by points descending
+            const sortedTeams = [...teams].sort((a, b) => b.points - a.points);
+
+            container.innerHTML = '';
+
+            sortedTeams.forEach((team, index) => {
+                const rank = index + 1;
+                
+                // Styling badges based on position
+                let rankBadgeClass = 'bg-slate-700 text-slate-300';
+                let rankIcon = `#${rank}`;
+                let borderHighlight = 'border-slate-700/60';
+
+                if (rank === 1) {
+                    rankBadgeClass = 'bg-[#ffcc00] text-slate-900 font-extrabold shadow-md shadow-amber-500/30';
+                    rankIcon = '<i class="fa-solid fa-crown text-amber-300"></i> 1º';
+                    borderHighlight = 'border-[#ffcc00]/50 bg-gradient-to-r from-[#ffcc00]/10 via-slate-800 to-slate-800';
+                } else if (rank === 2) {
+                    rankBadgeClass = 'bg-slate-300 text-slate-900 font-bold';
+                    rankIcon = '<i class="fa-solid fa-medal text-slate-300"></i> 2º';
+                    borderHighlight = 'border-slate-500/50';
+                } else if (rank === 3) {
+                    rankBadgeClass = 'bg-amber-700 text-amber-100 font-bold';
+                    rankIcon = '<i class="fa-solid fa-award text-amber-600"></i> 3º';
+                    borderHighlight = 'border-amber-800/50';
+                }
+
+                const teamCard = document.createElement('div');
+                teamCard.className = `bg-[#1a2634] border ${borderHighlight} rounded-2xl p-4 shadow-md transition-all flex items-center justify-between gap-3 animate-rank-up`;
+
+                teamCard.innerHTML = `
+                    <div class="flex items-center space-x-3.5 min-w-0">
+                        <div class="px-2.5 py-1 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1 ${rankBadgeClass}">
+                            ${rankIcon}
+                        </div>
+                        <div class="truncate">
+                            <h3 class="text-base sm:text-lg font-bold text-[#eaeaea] truncate">${escapeHtml(team.name)}</h3>
+                            <p class="text-xs text-slate-400">Puntos acumulados</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="text-right">
+                            <span class="text-2xl sm:text-3xl font-black text-[#ffcc00] tracking-tight">${team.points}</span>
+                            <span class="text-xs text-slate-400 block font-medium">pts</span>
+                        </div>
+
+                        <!-- Rapid Add / Subtract buttons -->
+                        <div class="flex flex-col gap-1">
+                            <button onclick="changePoints(${team.id}, 1)" class="w-9 h-9 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 active:scale-90 rounded-xl flex items-center justify-center font-bold text-lg transition" title="Sumar 1 punto">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                            <button onclick="changePoints(${team.id}, -1)" class="w-9 h-9 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 active:scale-90 rounded-xl flex items-center justify-center font-bold text-lg transition" title="Restar 1 punto">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(teamCard);
+            });
+        }
+
+        function changePoints(teamId, delta) {
+            const team = teams.find(t => t.id === teamId);
+            if (team) {
+                team.points += delta;
+                if (delta > 0) playSound('point');
+                saveData();
+                renderLeaderboard();
+                updateModalSelectOptions();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            if (timerSeconds <= 10 && timerSeconds > 0 && isTimerRunning) {
+                display.classList.add('pulse-timer');
+            } else {
+                display.classList.remove('pulse-timer');
+            }
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            initAudio();
+            isTimerRunning = true;
+            document.getElementById('btn-start-timer').disabled = true;
+            document.getElementById('btn-start-timer').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btn-pause-timer').disabled = false;
+            document.getElementById('btn-pause-timer').classList.remove('opacity-50', 'cursor-not-allowed');
+
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    if (timerSeconds <= 5) playSound('beep');
+                } else {
+                    pauseTimer();
+                    playSound('finish');
+                    alert('¡TIEMPO FINALIZADO!');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('btn-start-timer').disabled = false;
+            document.getElementById('btn-start-timer').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('btn-pause-timer').disabled = true;
+            document.getElementById('btn-pause-timer').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = initialTimerSeconds;
+            updateTimerDisplay();
+        }
+
+        function setPresetTimer(minutes) {
+            pauseTimer();
+            timerSeconds = minutes * 60;
+            initialTimerSeconds = timerSeconds;
+            updateTimerDisplay();
+        }
+
+        function toggleCustomTimeInputs() {
+            const container = document.getElementById('custom-time-inputs');
+            container.classList.toggle('hidden');
+        }
+
+        function applyCustomTime() {
+            const mins = parseInt(document.getElementById('input-minutes').value) || 0;
+            const secs = parseInt(document.getElementById('input-seconds').value) || 0;
+            pauseTimer();
+            timerSeconds = (mins * 60) + secs;
+            initialTimerSeconds = timerSeconds;
+            updateTimerDisplay();
+            toggleCustomTimeInputs();
+        }
+
+        function renderRoundInputs() {
+            const container = document.getElementById('round-teams-inputs');
+            container.innerHTML = '';
+
+            teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 border border-slate-700 p-2.5 rounded-xl flex items-center justify-between';
+                card.innerHTML = `
+                    <span class="text-xs font-bold text-white truncate max-w-[130px]">${escapeHtml(team.name)}</span>
+                    <input type="number" data-team-id="${team.id}" value="0" class="round-point-input w-20 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-center font-bold text-amber-400 text-sm focus:outline-none focus:border-amber-500">
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function saveRound() {
+            const nameInput = document.getElementById('round-name-input');
+            const roundName = nameInput.value.trim() || `Ronda ${roundsHistory.length + 1}`;
+            
+            const inputs = document.querySelectorAll('.round-point-input');
+            const roundScores = {};
+
+            inputs.forEach(input => {
+                const teamId = parseInt(input.getAttribute('data-team-id'));
+                const pts = parseInt(input.value) || 0;
+                roundScores[teamId] = pts;
+
+                // Add points to team total
+                const team = teams.find(t => t.id === teamId);
+                if (team) {
+                    team.points += pts;
+                }
+            });
+
+            roundsHistory.unshift({
+                id: Date.now(),
+                name: roundName,
+                date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                scores: roundScores
+            });
+
+            nameInput.value = '';
+            saveData();
+            renderLeaderboard();
+            renderRoundsHistory();
+            alert('¡Ronda guardada correctamente e incrementados los puntos!');
+        }
+
+        function renderRoundsHistory() {
+            const container = document.getElementById('rounds-history-list');
+            container.innerHTML = '';
+
+            if (roundsHistory.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No hay rondas registradas todavía.</p>`;
+                return;
+            }
+
+            roundsHistory.forEach(round => {
+                const item = document.createElement('div');
+                item.className = 'bg-slate-800 border border-slate-700/80 rounded-xl p-4 space-y-2';
+
+                let teamScoresHTML = '';
+                teams.forEach(team => {
+                    const pts = round.scores[team.id] || 0;
+                    if (pts !== 0) {
+                        teamScoresHTML += `
+                            <span class="inline-flex items-center gap-1 text-xs bg-slate-900 border border-slate-700 px-2 py-1 rounded-lg">
+                                <span class="text-slate-300">${escapeHtml(team.name)}:</span>
+                                <span class="font-bold text-amber-400">${pts > 0 ? '+' : ''}${pts}</span>
+                            </span>
+                        `;
+                    }
+                });
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-700/50 pb-2">
+                        <h4 class="font-bold text-sm text-white">${escapeHtml(round.name)}</h4>
+                        <span class="text-[11px] text-slate-400">${round.date}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        ${teamScoresHTML || '<span class="text-xs text-slate-500">Sin cambio de puntos en esta ronda</span>'}
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        function renderManageTeams() {
+            const container = document.getElementById('manage-teams-list');
+            container.innerHTML = '';
+
+            teams.forEach(team => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-slate-900 border border-slate-700/80 p-2.5 rounded-xl gap-2';
+                row.innerHTML = `
+                    <input type="text" value="${escapeHtml(team.name)}" onchange="updateTeamName(${team.id}, this.value)" class="bg-slate-800 border border-slate-700 text-white text-sm font-semibold px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-500 flex-grow">
+                    <button onclick="removeTeam(${team.id})" class="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg transition" title="Eliminar equipo">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addNewTeam(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-team-name');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const newId = Date.now();
+            teams.push({ id: newId, name: name, points: 0 });
+            input.value = '';
+
+            saveData();
+            renderLeaderboard();
+            renderManageTeams();
+            updateModalSelectOptions();
+        }
+
+        function updateTeamName(id, newName) {
+            const team = teams.find(t => t.id === id);
+            if (team && newName.trim()) {
+                team.name = newName.trim();
+                saveData();
+                renderLeaderboard();
+                updateModalSelectOptions();
+            }
+        }
+
+        function removeTeam(id) {
+            if (teams.length <= 2) {
+                alert('Debe haber al menos 2 equipos en la gymkana.');
+                return;
+            }
+            if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+                teams = teams.filter(t => t.id !== id);
+                saveData();
+                renderLeaderboard();
+                renderManageTeams();
+                updateModalSelectOptions();
+            }
+        }
+
+        function openCustomPointsModal() {
+            updateModalSelectOptions();
+            document.getElementById('modal-custom-points').classList.remove('hidden');
+        }
+
+        function closeCustomPointsModal() {
+            document.getElementById('modal-custom-points').classList.add('hidden');
+        }
+
+        function updateModalSelectOptions() {
+            const select = document.getElementById('modal-select-team');
+            select.innerHTML = '';
+            teams.forEach(team => {
+                const opt = document.createElement('option');
+                opt.value = team.id;
+                opt.innerText = `${team.name} (${team.points} pts)`;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyCustomPoints() {
+            const select = document.getElementById('modal-select-team');
+            const amountInput = document.getElementById('modal-points-amount');
+            const teamId = parseInt(select.value);
+            const amount = parseInt(amountInput.value) || 0;
+
+            if (teamId && amount !== 0) {
+                changePoints(teamId, amount);
+                closeCustomPointsModal();
+            }
+        }
+
+        function resetDataConfirmation() {
+            if (confirm('¿Quieres reiniciar todos los puntos y restablecer la gymkana?')) {
+                teams.forEach(t => t.points = 0);
+                roundsHistory = [];
+                saveData();
+                renderLeaderboard();
+                renderRoundsHistory();
+                alert('Gymkana reiniciada con éxito.');
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        window.onload = function() {
+            loadData();
+            renderLeaderboard();
+            renderManageTeams();
+            renderRoundsHistory();
+            updateTimerDisplay();
+        };
+    </script>
+</body>
+</html>
